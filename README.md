@@ -17,6 +17,7 @@
     - [Parameter Definitions](#parameter-definitions)
     - [5.2 Generating Video URL](#52-generating-video-url)
     - [5.3 Listening for Callbacks](#53-listening-for-callbacks)
+    - [5.4 Additional SDK Configuration](#54-additional-sdk-configuration)
   - [6. Important Notes](#6-important-notes)
   - [7. Callback Descriptions](#7-callback-descriptions)
   - [8. Conclusion](#8-conclusion)
