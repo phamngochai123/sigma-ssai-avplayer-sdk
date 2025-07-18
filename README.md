@@ -1,6 +1,6 @@
 # SSAITracking SDK Integration Guide
 
- **Version**: 1.0.4
+ **Version**: 1.0.6
 
 **Organization**: Thủ Đô Multimedia
 
@@ -72,7 +72,7 @@ To install the SSAITracking SDK, follow these steps:
 2. **Declare the library in Podfile**:
 
 ```swift
-pod 'SSAITracking', :git => 'https://github.com/sigmaott/sigma-ssai-ios.git', :tag => '1.0.4'
+pod 'SSAITracking', :git => 'https://github.com/sigmaott/sigma-ssai-ios.git', :tag => '1.0.6'
 ```
 
 3. **Run the installation command**:
@@ -134,6 +134,41 @@ After calling `generateUrl`, listen for callbacks from the SDK:
 * **Failure Callback**:
   If there is an error generating the video URL, the `onGenerateVideoUrlFail` method will be invoked.
 
+### 5.4 Additional SDK Configuration
+
+`setManifestTimeout`
+
+```swift
+self.ssai?.setManifestTimeout(6000)
+```
+
+* **Description**: Sets timeout (in milliseconds) for manifest requests from proxy to origin server/CDN.
+* **Parameter**:
+
+    `manifestTimeout`: Timeout in milliseconds.
+
+`setCustomData`
+
+```swift
+let customJson = """
+{
+  "userType": "premium",
+  "age": 25,
+  "isSubscriber": true
+}
+"""
+self.ssai?.setCustomData(originalUrl, customDataJsonStr: customJson)
+```
+
+* **Description**: Sends JSON-formatted custom parameters to the ad server.
+* **Parameters**:
+
+    `url`: Original manifest URL.
+
+    `customDataJsonStr`: JSON string with targeting parameters.
+
+📝 **Note**: Both `setManifestTimeout` and `setCustomData` should be called immediately before starting video playback to ensure correct configuration for the upcoming stream.
+
 ## 6. Important Notes
 
 Always remember to call `setPlayer` on the SDK after initializing the `AVPlayer` or replacing the current item. This ensures that the SDK correctly recognizes the active video player and can effectively manage ad tracking. If you need to change the `adsEndpoint`, it is essential to reinitialize the SDK. This ensures that the new endpoint is properly configured and used for tracking.
@@ -141,7 +176,7 @@ Always remember to call `setPlayer` on the SDK after initializing the `AVPlayer`
 ## 7. Callback Descriptions
 
 * `onGenerateVideoUrlSuccess(_ videoUrl: String)`: Called when the video URL is successfully generated.
-* `onGenerateVideoUrlFail(_ message: String)`: Called when there is an error in generating the video URL.
+* `onGenerateVideoUrlFail(_ message: String, videoUrl: String)`: Called when there is an error in generating the video URL. message is errorCode, videoUrl is video url input
 * `onTracking(_ message: String)`: Called whenever there is a tracking message.
 
 ## 8. Conclusion

@@ -119,10 +119,12 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
         self.ssai?.setShowLog(true)
         generateUrl()
     }
-    func onGenerateVideoUrlFail(_ message: String) {
-        print("onGenerateVideoUrlFail=>\(message)")
+    func onGenerateVideoUrlFail(_ message: String, videoUrl: String) {
+        print("onGenerateVideoUrlFail=>\(message)_\(videoUrl)")
     }
     func onGenerateVideoUrlSuccess(_ videoUrl: String) {
+        self.ssai?.setCustomData(self.videoUrl, customDataJsonStr: "{\"content_id\":\"movie123\",\"is_premium\":false,\"user_age\":25}")
+        self.ssai?.setManifestTimeout(6000)
         self.videoUrl = videoUrl
         print("---Clear player onGenerateVideoUrlSuccess---", videoUrl, self.ssai)
         if(profileIndex == -1) {
@@ -231,11 +233,11 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
     func setDrmInfo() {
         #if !targetEnvironment(simulator)
             if isDrm {
-                SigmaDRM.getInstance().setAppId(Constants.appId)
-                SigmaDRM.getInstance().setMerchantId(Constants.merchantId)
-                SigmaDRM.getInstance().setUserUid("234")
+                SigmaDRM.getInstance().setAppId("vtvgo")
+                SigmaDRM.getInstance().setMerchantId("vtvdigital")
+                SigmaDRM.getInstance().setUserUid("G-4FF8C4958AD")
                 SigmaDRM.getInstance().setDrmUrl([])
-                SigmaDRM.getInstance().setSessionId("1234")
+//                SigmaDRM.getInstance().setSessionId("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZGkiOiJ7XCJ1c2VyXCI6XCJHLTRGRjhDNDk1OEFEXCIsXCJtZXJjaGFudFwiOlwidnR2ZGlnaXRhbFwiLFwiYXNzZXRcIjpcInZ0dmNhYjJcIn0iLCJ1c2VySWQiOiJHLTRGRjhDNDk1OEFEIiwiZHJtSWQiOiJ2dHZjYWIyIiwiaWF0IjoxNzQ3MjcxODU2LCJleHAiOjE3NDczMDA2NjZ9.2OsIQsEokch0q7Eur_hfU6Y66BovwW9DDse0KLeR_3c")
             }
         #endif
     }

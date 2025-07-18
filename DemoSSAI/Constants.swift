@@ -9,16 +9,16 @@ import Foundation
 
 struct Constants {
     // URL constants
-    static let baseDomain = "https://cdn-lrm-test.sigma.video"
-    static let adsEndpoint = "34d92d3c-67e4-49c0-b0ee-ee4172b5f7ac"
+    static let baseDomain = "https://stream-cdn.sigmadrm.com/manifest/channel-test"
+    static let adsEndpoint = "da914c58-5c6e-41b7-93b7-0597c4a983ee"
     static let adsEndpointQuery = "sigma.dai.adsEndpoint=\(adsEndpoint)"
     static let drmUrl = "\(baseDomain)/manifest/origin04/scte35-av4s-sigma-drm/master.m3u8?\(adsEndpointQuery)"
-    static let hlsSCTE35 = "\(baseDomain)/manifest/origin04/scte35-video-audio-clear/master.m3u8?\(adsEndpointQuery)"
-    static let hlsTs2s = "\(baseDomain)/manifest/origin04/scte35-av2s-clear/master.m3u8?\(adsEndpointQuery)"
-    static let hlsTs4s = "\(baseDomain)/manifest/origin04/scte35-av4s-clear/master.m3u8?\(adsEndpointQuery)"
-    static let hlsTs6s = "\(baseDomain)/manifest/origin04/scte35-av6s-clear/master.m3u8?\(adsEndpointQuery)"
-    static let ANTV = "http://live-on-v2-akm.akamaized.net/manifest/test_live/master.m3u8?\(adsEndpointQuery)"
-    static let sourceTestStreamMux = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8?\(adsEndpointQuery)"
+    static let hlsSCTE35 = "\(baseDomain)/mastersplit-master.m3u8?\(adsEndpointQuery)"
+    static let hlsTs2s = "\(baseDomain)/masterhls-ts-2s.m3u8?\(adsEndpointQuery)"
+    static let hlsTs4s = "\(baseDomain)/masterhls-ts-4s.m3u8?\(adsEndpointQuery)"
+    static let hlsTs6s = "\(baseDomain)/masterhls-ts-6s.m3u8?\(adsEndpointQuery)"
+    static let ANTV = "https://vtv-live-push-token.akamaized.net/hls/live/2029307/vtv1/playlist.m3u8?hdnts=exp=1747367448~acl=/hls/live/2029307/vtv1/*~hmac=746fcf4d5f7d29e8cf52f66b8b18c3d2647e0dc60c46b2df3d10872444a05006?\(adsEndpointQuery)"
+    static let sourceTestStreamMux = "https://vtv-live-push-token.akamaized.net/hls/live/2029307/vtv1/playlist.m3u8?hdnts=exp=1745481663~acl=/hls/live/2029307/vtv1/*~hmac=7e9ad112ec391e62f541af0eed335a72289c0d957029d57b8eb9146857091323&\(adsEndpointQuery)"
     static let sourceTestTearOfSteel = "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8?\(adsEndpointQuery)"
 //    static let playlist480Url = "https://lrm-test.sigma.video:1643/manifest/origin04/scte35-av4s-clear/playlist_480.m3u8"
 //    static let playlist360Url = "https://lrm-test.sigma.video:1643/manifest/origin04/scte35-av4s-clear/playlist_360.m3u8"
@@ -29,8 +29,8 @@ struct Constants {
         ["url": hlsTs4s, "isLive": true, "name": "Hls 4s", "isDrm": false],
         ["url": hlsTs6s, "isLive": true, "name": "Hls 6s", "isDrm": false],
         ["url": drmUrl, "isLive": true, "name": "Link drm", "isDrm": true],
-        ["url": ANTV, "isLive": true, "name": "ANTV", "isDrm": false],
-        ["url": sourceTestStreamMux, "isLive": false, "name": "Vod", "isDrm": false],
+        ["url": ANTV, "isLive": false, "name": "ANTV", "isDrm": false],
+        ["url": sourceTestStreamMux, "isLive": true, "name": "Vod", "isDrm": true],
         ["url": sourceTestTearOfSteel, "isLive": false, "name": "Tear of steel", "isDrm": false]
     ] as [[String: Any]]
 
