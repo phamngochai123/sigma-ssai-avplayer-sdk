@@ -152,6 +152,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         controller.isDrm = URLManager.shared.urls[selectedIndexInt]["isDrm"] as! Bool;
         controller.videoUrl = URLManager.shared.urls[selectedIndexInt]["url"] as! String;
+        controller.initialVideoUrl = URLManager.shared.urls[selectedIndexInt]["url"] as! String;
         controller.sessionUrl = URLManager.shared.urls[selectedIndexInt]["url"] as! String;
         controller.isLive = URLManager.shared.urls[selectedIndexInt]["isLive"] as! Bool;
         controller.bottomSafeArea = bottomSafeArea;

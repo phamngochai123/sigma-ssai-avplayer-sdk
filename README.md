@@ -1,6 +1,6 @@
 # SSAITracking SDK Integration Guide
 
- **Version**: 1.0.6
+ **Version**: 1.1.0
 
 **Organization**: Thủ Đô Multimedia
 
@@ -73,7 +73,7 @@ To install the SSAITracking SDK, follow these steps:
 2. **Declare the library in Podfile**:
 
 ```swift
-pod 'SSAITracking', :git => 'https://github.com/sigmaott/sigma-ssai-ios.git', :tag => '1.0.6'
+pod 'SSAITracking', :git => 'https://github.com/sigmaott/sigma-ssai-ios.git', :tag => '1.1.0'
 ```
 
 3. **Run the installation command**:
@@ -105,22 +105,22 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 * **Initialize the SDK with the required parameters**:
 
 ```swift
-self.ssai = SSAITracking.SigmaSSAI.init(adsEndpoint, self, playerView)
+self.ssai = SSAITracking.SigmaSSAI.init(self, playerView, enableNonce)
 ```
 
 ### Parameter Definitions
 
-* **`adsEndpoint`**: Your ads endpoint (it will be obtained from the detailed endpoint information page in the SSAI product).
 * **`self`**: A reference to the current instance of your class, which must conform to the `SigmaSSAIInterface` protocol to handle callbacks.
 * **`playerView`**: The view where the video player will be displayed.
+* **`enableNonce`**  Enables or disables the use of a `nonce` in ad requests. When set to `true`, the SDK will include a `nonce` parameter in requests to  **Google Ad Manager (GAM)**. This helps GAM understand the context of the ad request, which can improve ad targeting, verification, or compliance with GAM policies.
+
+> ✅ Recommended to enable (`true`) if you're using Google Ad Manager for ad serving.
 
 ### 5.2 Generating Video URL
 
 Once the SDK is initialized, generate the video URL by calling the `generateUrl` method with the `videoUrl` parameter:
 
-**Note**: If the `videoUrl` contains the query parameter `sigma.dai.adsEndpoint`, its value will override the `adsEndpoint` provided during initialization.
-
-**Example**: https://example.com/master.m3u8?sigma.dai.adsEndpoint=abc123
+**Example**: https://example.com/master.m3u8
 
 ```swift
 self.ssai?.generateUrl(videoUrl)
@@ -140,25 +140,29 @@ After calling `generateUrl`, listen for callbacks from the SDK:
 `setManifestTimeout`
 
 ```swift
-self.ssai?.setManifestTimeout(6000)
+SSAITracking.SigmaSSAI.setManifestTimeout(6000)
 ```
 
-* **Description**: Sets timeout (in milliseconds) for manifest requests from proxy to origin server/CDN.
+* **Description**: Sets the timeout (in milliseconds) for manifest requests from the proxy to the origin server or CDN.
 * **Parameter**:
 
-    `manifestTimeout`: Timeout in milliseconds.
+    `manifestTimeout`: Timeout in milliseconds. For example, `6000` means 6 seconds.
+
+📝  **Note** : This is a **static** method and should be called on `SSAITracking.SigmaSSAI` directly. You can call `setManifestTimeout` **after** `SSAITracking.SigmaSSAI.start()` and **before calling** `generateUrl(...)` to ensure the setting is applied for the upcoming playback session.
 
 `setCustomData`
 
 ```swift
-let customJson = """
-{
-  "userType": "premium",
-  "age": 25,
-  "isSubscriber": true
-}
-"""
-self.ssai?.setCustomData(originalUrl, customDataJsonStr: customJson)
+let jsonObject: [String: Any] = [
+    "content_id": "movie123",
+    "is_premium": false,
+    "user_age": 25
+ ]
+if let jsonData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []),
+   let jsonString = String(data: jsonData, encoding: .utf8) {
+   print("onGenerateVideoUrlSuccess: \(jsonString)")
+   self.ssai?.setCustomData(self.initialVideoUrl, customDataJsonStr: jsonString)
+ }
 ```
 
 * **Description**: Sends JSON-formatted custom parameters to the ad server.
@@ -168,7 +172,20 @@ self.ssai?.setCustomData(originalUrl, customDataJsonStr: customJson)
 
     `customDataJsonStr`: JSON string with targeting parameters.
 
-📝 **Note**: Both `setManifestTimeout` and `setCustomData` should be called immediately before starting video playback to ensure correct configuration for the upcoming stream.
+📝 **Note**: `setCustomData` should be called immediately before starting video playback to ensure correct configuration for the upcoming stream.
+
+`setAdsEndpoint`
+
+```swift
+self.ssai?.setAdsEndpoint(initialVideoUrl, adsEndpoint)
+```
+
+* **Description** : Updates the ads endpoint associated with a specific manifest URL. Useful for dynamically overriding the default `adsEndpoint` during a playback session.
+* **Parameters** :
+* `initialVideoUrl`: The original manifest URL (before SSAI processing).
+* `adsEndpoint`: ads endpoint to apply.
+
+📝  **Note** : This method can be called  **at any time during a playback session** , even while the video is playing. However, it is **recommended** to call `setAdsEndpoint` inside `onGenerateVideoUrlSuccess(...)` to ensure correct association before playback starts.
 
 ## 6. Important Notes
 

@@ -42,6 +42,7 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
     var itemIndex: Int = -1;
     var profileIndex: Int = -1;
     var videoUrl: String = "";
+    var initialVideoUrl: String = "";
     var adsEndpoint: String = "";
     var listProfile:[[String: String]] = []
     var changeSourceNeedReset: Bool = false;
@@ -114,38 +115,50 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
         //
     }
     func setupSSAI() {
-        self.ssai = SSAITracking.SigmaSSAI.init("", self, playerView)
+        self.ssai = SSAITracking.SigmaSSAI.init(self, playerView, true)
         //show or hide ssai log
         self.ssai?.setShowLog(true)
         generateUrl()
+    }
+    func generateUrl() {
+        if let url = URL(string: videoUrl) {
+            showToast(message: "VideoUrl=>\(videoUrl)", font: .systemFont(ofSize: 13.0))
+            self.ssai?.generateUrl(videoUrl)
+        }
     }
     func onGenerateVideoUrlFail(_ message: String, videoUrl: String) {
         print("onGenerateVideoUrlFail=>\(message)_\(videoUrl)")
     }
     func onGenerateVideoUrlSuccess(_ videoUrl: String) {
-        self.ssai?.setCustomData(self.videoUrl, customDataJsonStr: "{\"content_id\":\"movie123\",\"is_premium\":false,\"user_age\":25}")
-        self.ssai?.setManifestTimeout(6000)
+        self.ssai?.setAdsEndpoint(self.initialVideoUrl, Constants.adsEndpoint)
+        let jsonObject: [String: Any] = [
+            "content_id": "movie123",
+            "is_premium": false,
+            "user_age": 25
+        ]
+
+        if let jsonData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("onGenerateVideoUrlSuccess: \(jsonString)")
+            self.ssai?.setCustomData(self.initialVideoUrl, customDataJsonStr: jsonString)
+        }
         self.videoUrl = videoUrl
-        print("---Clear player onGenerateVideoUrlSuccess---", videoUrl, self.ssai)
+        print("---Clear player onGenerateVideoUrlSuccess---", videoUrl)
         if(profileIndex == -1) {
             fetchM3u8Url()
         }
-        if videoPlayer == nil {
+        if videoPlayer == nil || changeSourceNeedReset {
             try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: []);
             startPlayer();
         } else {
-            if changeSourceNeedReset {
-                startPlayer()
-            } else {
-                if let asset = getAssetWrapper() {
-                    let newPlayerItem = AVPlayerItem(asset: asset)
-                    videoPlayer?.replaceCurrentItem(with: newPlayerItem)
-                    addPeriodicTimeObserver()
-                    self.playBackTime = 0
-                    playerItem = newPlayerItem
-                    videoPlayer?.play()
-                    self.ssai?.setPlayer(videoPlayer!)
-                }
+            if let asset = getAssetWrapper() {
+                let newPlayerItem = AVPlayerItem(asset: asset)
+                videoPlayer?.replaceCurrentItem(with: newPlayerItem)
+                addPeriodicTimeObserver()
+                self.playBackTime = 0
+                playerItem = newPlayerItem
+                videoPlayer?.play()
+                self.ssai?.setPlayer(videoPlayer!)
             }
         }
     }
@@ -431,6 +444,7 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
             isLive = (nextItem["isLive"] as? Bool)!
             isDrm = (nextItem["isDrm"] as? Bool)!
             videoUrl = (nextItem["url"] as? String)!
+            initialVideoUrl = videoUrl
             itemIndex = index
             setTitleButton()
             setDrmInfo()
@@ -445,12 +459,6 @@ class PlayerViewController: UIViewController, SigmaSSAIInterface, AVAssetResourc
     func changeCurrentItemPlayer(_ needReset: Bool) {
         print("changeCurrentItemPlayer=>", videoUrl)
         generateUrl()
-    }
-    func generateUrl() {
-        if let url = URL(string: videoUrl) {
-            showToast(message: "VideoUrl=>\(videoUrl)", font: .systemFont(ofSize: 13.0))
-            self.ssai?.generateUrl(videoUrl)
-        }
     }
     override func viewWillDisappear(_ animated: Bool) {
         print("Player viewWillDisappear", animated);
